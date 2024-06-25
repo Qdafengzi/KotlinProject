@@ -24,4 +24,15 @@ class HomeListViewModel : ViewModel() {
         }
     }
 
+    fun changeSelectedStatus(index: Int) {
+        val currentList = _uiState.value.toMutableList()
+        if (index in currentList.indices) {
+            val updatedItem = currentList[index].copy(selected = !currentList[index].selected)
+            currentList[index] = updatedItem
+            _uiState.update {
+                currentList
+            }
+        }
+    }
+
 }
