@@ -15,7 +15,7 @@ class HomeListViewModel : ViewModel() {
     fun initData() {
         viewModelScope.launch {
             val homeList = mutableListOf<HomeListEntity>()
-            (0..100).forEach {
+            (0..500).forEach {
                 homeList.add(HomeListEntity(title = "TITLE $it", content = "THIS IS A COMPOSE MULTIPLATFORM UI $it"))
             }
             _uiState.update {
