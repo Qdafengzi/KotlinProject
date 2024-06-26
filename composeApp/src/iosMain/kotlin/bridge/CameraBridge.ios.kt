@@ -1,6 +1,8 @@
 package bridge
 
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -21,6 +23,13 @@ actual fun CameraView() {
         (device as AVCaptureDevice).position == AVCaptureDevicePositionBack
     }!! as AVCaptureDevice
 
+
+//    AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: {
+//                finished in
+//                print(finished.description)
+//            })
+
+
     val input = AVCaptureDeviceInput.deviceInputWithDevice(device, null) as AVCaptureDeviceInput
 
     val output = AVCaptureStillImageOutput()
@@ -36,7 +45,7 @@ actual fun CameraView() {
     val cameraPreviewLayer = remember { AVCaptureVideoPreviewLayer(session = session) }
 
     UIKitView(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxWidth().aspectRatio(1f),
         background = Color.Black,
         factory = {
             val container = UIView()
