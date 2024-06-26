@@ -56,7 +56,7 @@ fun BottomContent(navController: NavHostController) {
                 icon = {
                     Icon(
                         painter = painterResource(item.icon),
-                        tint = if (currentRoute == item.route) Color(0xFF1AAD19) else Color.Gray,
+                        tint = if (currentRoute == item.route) Color(0xFF0099a1) else Color.Gray,
                         contentDescription = null,
                         modifier = Modifier.size(30.dp)
                     )
@@ -65,7 +65,7 @@ fun BottomContent(navController: NavHostController) {
                     Text(
                         text = item.title,
                         fontWeight = if (currentRoute == item.route) FontWeight.Medium else FontWeight.Normal,
-                        color = if (currentRoute == item.route) Color(0xFF1AAD19) else Color.Gray,
+                        color = if (currentRoute == item.route) Color(0xFF0099a1) else Color.Gray,
                     )
                 },
                 selected = currentRoute == item.route,

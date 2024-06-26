@@ -12,8 +12,14 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,75 +29,159 @@ import kotlinproject.composeapp.generated.resources.Res
 import kotlinproject.composeapp.generated.resources.compose_multiplatform
 import kotlinproject.composeapp.generated.resources.ic_select_default
 import kotlinproject.composeapp.generated.resources.ic_selected
+import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainCotent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() }) {
+    val scope = rememberCoroutineScope()
     val uiState = viewModel.uiState.collectAsState().value
     LaunchedEffect(Unit) {
         viewModel.initData()
     }
 
-    LazyVerticalGrid(
-        modifier = Modifier.fillMaxWidth(),
-        columns = GridCells.Fixed(2),
-        contentPadding = PaddingValues(horizontal = 2.dp),
-    ) {
-        uiState.forEachIndexed { index, homeListEntity ->
-            item {
-                Column(
-                    modifier = Modifier
-                        .padding(
-                            vertical = 4.dp,
-                            horizontal = 4.dp,
-                        )
-                        .fillMaxWidth()
-                        .aspectRatio(4 / 6f)
-                        .clickable {
-                            viewModel.changeSelectedStatus(index)
+
+    val toolbarHeight = 48.dp
+    val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
+    val toolbarOffsetHeightPx = remember { mutableFloatStateOf(0f) }
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                val newOffset = toolbarOffsetHeightPx.floatValue + delta
+                toolbarOffsetHeightPx.floatValue = newOffset.coerceIn(-toolbarHeightPx, 0f)
+                return Offset.Zero
+            }
+        }
+    }
+
+    val state = rememberBottomSheetScaffoldState()
+
+    BottomSheetScaffold(
+        scaffoldState = state,
+        sheetBackgroundColor = Color.Blue,
+        sheetElevation = 10.dp,
+        sheetGesturesEnabled = true,
+        sheetShape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp),
+        sheetPeekHeight = 0.dp,
+        sheetContent = {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.height(400.dp)
+            ) {
+                Text("sheetContent")
+            }
+        }) {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .nestedScroll(nestedScrollConnection)
+        ) {
+            LazyVerticalGrid(
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(horizontal = 2.dp),
+            ) {
+                uiState.forEachIndexed { index, homeListEntity ->
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .padding(
+                                    vertical = 4.dp,
+                                    horizontal = 4.dp,
+                                )
+                                .fillMaxWidth()
+                                .aspectRatio(4 / 6f)
+                                .clickable {
+                                    viewModel.changeSelectedStatus(index)
+                                }
+                                .background(
+                                    color = Color.LightGray,
+                                    shape = RoundedCornerShape(6.dp)
+                                )
+                                .padding(vertical = 16.dp, horizontal = 12.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(1f)
+                            ) {
+                                Image(
+                                    painterResource(Res.drawable.compose_multiplatform),
+                                    null,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                )
+
+                                Image(
+                                    painterResource(if (homeListEntity.selected) Res.drawable.ic_selected else Res.drawable.ic_select_default),
+                                    null,
+                                    modifier = Modifier
+                                        .padding(start = 2.dp, top = 2.dp)
+                                        .align(Alignment.TopStart)
+                                        .size(16.dp)
+                                )
+                            }
+
+                            Text(
+                                text = homeListEntity.title,
+                                color = Color(0xFF333333),
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
+                            )
+                            Text(
+                                text = homeListEntity.content,
+                                color = Color.Gray,
+                                fontSize = 12.sp,
+                                modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                            )
                         }
-                        .background(
-                            color = Color.LightGray,
-                            shape = RoundedCornerShape(6.dp)
-                        )
-                        .padding(vertical = 16.dp, horizontal = 12.dp)
-                ) {
-                   Box(  modifier = Modifier
-                       .fillMaxWidth()
-                       .aspectRatio(1f)
-                   ) {
-                       Image(
-                           painterResource(Res.drawable.compose_multiplatform),
-                           null,
-                           modifier = Modifier
-                               .fillMaxSize()
-                       )
-
-                       Image(
-                           painterResource(if(homeListEntity.selected) Res.drawable.ic_selected else Res.drawable.ic_select_default),
-                           null,
-                           modifier = Modifier
-                               .padding(start = 2.dp, top = 2.dp)
-                               .align(Alignment.TopStart)
-                               .size(16.dp)
-                       )
-                   }
-
-                    Text(
-                        text = homeListEntity.title,
-                        color = Color(0xFF333333),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
-                    )
-                    Text(
-                        text = homeListEntity.content,
-                        color = Color.Gray,
-                        fontSize = 12.sp,
-                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
-                    )
+                    }
                 }
             }
+            TopAppBar(
+                modifier = Modifier
+                    .height(toolbarHeight)
+                    .offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.floatValue.roundToInt()) },
+                title = {
+                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+
+                        Text(
+                            text = "I AM HEADER, OFFSET:${toolbarOffsetHeightPx.floatValue}",
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 16.sp,
+                            color = Color.Magenta
+                        )
+
+                      Row {
+                          TextButton(
+                              colors = ButtonDefaults.textButtonColors(backgroundColor = Color.Blue),
+                              onClick = {
+                              scope.launch {
+                                  state.bottomSheetState.expand()
+                              }
+                          }) {
+                              Text("bottomSheet", color = Color.White)
+                          }
+
+                          TextButton(
+                              colors = ButtonDefaults.textButtonColors(backgroundColor = Color.Blue),
+                              onClick = {
+                              scope.launch {
+                                  state.snackbarHostState.showSnackbar("this is a snackbar message", duration = SnackbarDuration.Short)
+                              }
+                          }) {
+                              Text("SnackBar", color = Color.White)
+                          }
+
+                      }
+                    }
+                },
+                backgroundColor = Color.White
+            )
         }
     }
 }

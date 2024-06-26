@@ -33,6 +33,21 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+            // CameraX core library using the camera2 implementation
+            val cameraxVersion = "1.4.0-beta02"
+            // The following line is optional, as the core library is included indirectly by camera-camera2
+            implementation("androidx.camera:camera-core:${cameraxVersion}")
+            implementation("androidx.camera:camera-camera2:${cameraxVersion}")
+            // If you want to additionally use the CameraX Lifecycle library
+            implementation("androidx.camera:camera-lifecycle:${cameraxVersion}")
+            // If you want to additionally use the CameraX VideoCapture library
+            implementation("androidx.camera:camera-video:${cameraxVersion}")
+            // If you want to additionally use the CameraX View class
+            implementation("androidx.camera:camera-view:${cameraxVersion}")
+            // If you want to additionally add CameraX ML Kit Vision Integration
+            implementation("androidx.camera:camera-mlkit-vision:${cameraxVersion}")
+            // If you want to additionally use the CameraX Extensions library
+            implementation("androidx.camera:camera-extensions:${cameraxVersion}")
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -43,6 +58,13 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.7.0-alpha07")
+            implementation("io.github.oshai:kotlin-logging:7.0.0")
+
+            implementation("dev.icerock.moko:permissions:0.18.0")
+            // compose multiplatform
+            implementation("dev.icerock.moko:permissions-compose:0.18.0") // permissions api + compose extensions
+
+            implementation("dev.icerock.moko:permissions-test:0.18.0")
         }
     }
 }
