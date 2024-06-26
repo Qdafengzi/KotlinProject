@@ -9,6 +9,12 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "org.example.kmpapp"
+    generateResClass = always
+}
+
 kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -27,9 +33,8 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
-        
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -66,6 +71,7 @@ kotlin {
             implementation("dev.icerock.moko:permissions-compose:0.18.0") // permissions api + compose extensions
 
             implementation("dev.icerock.moko:permissions-test:0.18.0")
+
         }
     }
 }

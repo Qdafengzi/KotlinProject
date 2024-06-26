@@ -25,11 +25,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.jetbrains.compose.resources.painterResource
 
-import kotlinproject.composeapp.generated.resources.Res
-import kotlinproject.composeapp.generated.resources.compose_multiplatform
-import kotlinproject.composeapp.generated.resources.ic_select_default
-import kotlinproject.composeapp.generated.resources.ic_selected
 import kotlinx.coroutines.launch
+import org.example.kmpapp.Res
+import org.example.kmpapp.compose_multiplatform
+import org.example.kmpapp.ic_select_default
+import org.example.kmpapp.ic_selected
+import ui.theme.youYuanFamily
 import kotlin.math.roundToInt
 
 
@@ -153,7 +154,8 @@ fun MainCotent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() })
                             text = "I AM HEADER, OFFSET:${toolbarOffsetHeightPx.floatValue}",
                             fontWeight = FontWeight.Medium,
                             fontSize = 16.sp,
-                            color = Color.Magenta
+                            color = Color.Magenta,
+                            fontFamily = youYuanFamily()
                         )
 
                       Row {

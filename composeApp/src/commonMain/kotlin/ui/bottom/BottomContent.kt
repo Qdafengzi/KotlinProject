@@ -20,10 +20,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import kotlinproject.composeapp.generated.resources.Res
-import kotlinproject.composeapp.generated.resources.compose_camera
-import kotlinproject.composeapp.generated.resources.compose_home
-import kotlinproject.composeapp.generated.resources.compose_profile
+import org.example.kmpapp.Res
+import org.example.kmpapp.compose_camera
+import org.example.kmpapp.compose_home
+import org.example.kmpapp.compose_profile
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
 import ui.home.MainCotent

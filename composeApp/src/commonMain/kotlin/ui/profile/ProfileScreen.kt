@@ -20,9 +20,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinproject.composeapp.generated.resources.Res
-import kotlinproject.composeapp.generated.resources.compose_multiplatform
+import org.example.kmpapp.Res
+import org.example.kmpapp.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
+import ui.theme.youYuanFamily
 import kotlin.random.Random
 
 
@@ -100,6 +101,7 @@ fun Item(title: String) {
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF333333),
                 fontSize = 16.sp,
+                fontFamily = youYuanFamily()
             )
             Switch(checked = checked, onCheckedChange = {
                 checked = !checked
