@@ -23,13 +23,6 @@ actual fun CameraView() {
         (device as AVCaptureDevice).position == AVCaptureDevicePositionBack
     }!! as AVCaptureDevice
 
-
-//    AVCaptureDevice.requestAccess(for: AVMediaType.video, completionHandler: {
-//                finished in
-//                print(finished.description)
-//            })
-
-
     val input = AVCaptureDeviceInput.deviceInputWithDevice(device, null) as AVCaptureDeviceInput
 
     val output = AVCaptureStillImageOutput()
