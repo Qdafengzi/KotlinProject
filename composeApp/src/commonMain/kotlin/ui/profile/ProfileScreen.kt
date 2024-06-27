@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import org.example.kmpapp.Res
 import org.example.kmpapp.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
+import ui.theme.OpenSans
 import ui.theme.youYuanFamily
 import kotlin.random.Random
 
@@ -101,7 +102,7 @@ fun Item(title: String) {
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF333333),
                 fontSize = 16.sp,
-                fontFamily = youYuanFamily()
+                fontFamily = OpenSans(),
             )
             Switch(checked = checked, onCheckedChange = {
                 checked = !checked

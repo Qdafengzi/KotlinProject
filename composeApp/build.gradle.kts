@@ -1,4 +1,3 @@
-import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -71,6 +70,8 @@ kotlin {
             implementation("dev.icerock.moko:permissions-compose:0.18.0") // permissions api + compose extensions
 
             implementation("dev.icerock.moko:permissions-test:0.18.0")
+            //bluetooth
+            //implementation("com.juul.kable:kable-core:0.32.0")
 
         }
     }
