@@ -1,8 +1,12 @@
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.ModalDrawer
+import androidx.compose.material.Text
+import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.D
 import androidx.navigation.compose.rememberNavController
 import bridge.PlatformColors
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -15,14 +19,29 @@ import ui.theme.MultiplatformTheme
 @Preview
 fun App() {
     MultiplatformTheme {
-        PlatformColors(Color.Transparent, Color.Transparent)
+        PlatformColors(Color.White, Color.White)
         val navController = rememberNavController()
-        Scaffold(modifier = Modifier.fillMaxSize(),
-            bottomBar = {
-                BottomContent(navController)
+
+        ModalDrawer(
+            modifier = Modifier.fillMaxSize().systemBarsPadding(),
+            drawerContent = {
+                Box() {
+                    Text("Draw")
+
+                }
             }
-        ) {innerPadding->
-            NavHostContainer(navController, Modifier.padding(innerPadding))
+        ) {
+            Scaffold(
+                modifier = Modifier.fillMaxSize()
+                    .systemBarsPadding(),
+                bottomBar = {
+                    BottomContent(navController)
+                }
+            ) { innerPadding ->
+                NavHostContainer(navController, Modifier.padding(innerPadding))
+            }
         }
+
+
     }
 }
