@@ -1,17 +1,30 @@
 package ui.theme
 
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import org.example.kmpapp.Res
-import org.example.kmpapp.you_yuan
-import org.jetbrains.compose.resources.Font
 
-
-@Composable
-fun youYuanFamily() = FontFamily(
-    Font(resource = Res.font.you_yuan, weight = FontWeight.SemiBold, style = FontStyle.Italic),
+val LightColors = lightColorScheme(
+    primary = md_theme_light_primary,
+    onPrimary = md_theme_light_onPrimary,
+    primaryContainer = md_theme_light_primaryContainer,
 )
 
+val DarkColors = darkColorScheme(
+    primary = md_theme_dark_primary,
+    onPrimary = md_theme_dark_onPrimary,
+    primaryContainer = md_theme_dark_primaryContainer,
+)
 
+@Composable
+fun MultiplatformTheme(
+    content: @Composable () -> Unit
+) {
+    val isDarkModel = isSystemInDarkTheme()
+    MaterialTheme(
+        colorScheme = if (isDarkModel) DarkColors else LightColors,
+        content = content
+    )
+}
