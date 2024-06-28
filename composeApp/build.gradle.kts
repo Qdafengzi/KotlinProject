@@ -22,7 +22,7 @@ kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
     
@@ -73,9 +73,11 @@ kotlin {
             implementation(libs.serialization)
             implementation(libs.kamel)
 
+            //logger
+            implementation ("io.github.aakira:napier:2.7.1")
+
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.7.0-alpha07")
-            implementation("io.github.oshai:kotlin-logging:7.0.0")
 
             implementation("dev.icerock.moko:permissions:0.18.0")
             // compose multiplatform
@@ -87,6 +89,9 @@ kotlin {
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+        }
+
+        jvmMain.dependencies {
         }
     }
 }
@@ -117,8 +122,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true

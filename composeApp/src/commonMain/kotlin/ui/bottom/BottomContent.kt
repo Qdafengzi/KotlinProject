@@ -26,7 +26,7 @@ import org.example.kmpapp.compose_home
 import org.example.kmpapp.compose_profile
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
-import ui.home.MainCotent
+import ui.home.MainContent
 import ui.camera.CameraScreen
 import ui.profile.ProfileScreen
 
@@ -107,7 +107,7 @@ fun NavHostContainer(navController: NavHostController, modifier: Modifier = Modi
             popExitTransition = null,
 
             ) {
-            MainCotent()
+            MainContent()
         }
         composable(
             route = BottomNavItem.Camera.route,

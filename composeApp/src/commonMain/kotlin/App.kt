@@ -73,37 +73,5 @@ fun App() {
                 NavHostContainer(navController, Modifier.padding(innerPadding))
             }
         }
-
-//        ModalNavigationDrawer(
-//            modifier = Modifier.fillMaxSize().systemBarsPadding(),
-//            drawerState = states,
-//            drawerContent = {
-//                Column(
-//                    modifier = Modifier.fillMaxSize()
-//                        .background(color = MaterialTheme.colorScheme.background),
-//                    horizontalAlignment = Alignment.CenterHorizontally
-//                ) {
-//                    KamelImage(
-//                        resource = asyncPainterResource(data = "https://www.gravatar.com/avatar/98a5fa293cb82c5bac8d753a0ce52faf?s=256&d=identicon&r=PG&f=y&so-version=2"),
-//                        contentDescription = "",
-//                        modifier = Modifier
-//                            .padding(top = 20.dp)
-//                            .fillMaxWidth(0.5f)
-//                            .aspectRatio(1f)
-//                    )
-//                    Text(text = "COMPOSE MULTIPLATFORM", modifier = Modifier.padding(top = 20.dp))
-//                }
-//            }
-//        ) {
-//            Scaffold(
-//                modifier = Modifier.fillMaxSize()
-//                    .systemBarsPadding(),
-//                bottomBar = {
-//                    BottomContent(navController)
-//                }
-//            ) { innerPadding ->
-//                NavHostContainer(navController, Modifier.padding(innerPadding))
-//            }
-//        }
     }
 }

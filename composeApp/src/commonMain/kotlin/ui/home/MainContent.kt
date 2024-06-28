@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -20,9 +21,13 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import entity.HomeTabsEntity
+import ext.dpToPx
+import ext.pxToDp
 import org.jetbrains.compose.resources.painterResource
 
 import kotlinx.coroutines.launch
@@ -31,26 +36,34 @@ import org.example.kmpapp.compose_multiplatform
 import org.example.kmpapp.ic_select_default
 import org.example.kmpapp.ic_selected
 import ui.theme.youYuanFamily
+import utils.XLogger
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 
+enum class ScrollDirection {
+    UP,
+    DOWN,
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainCotent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() }) {
+fun MainContent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() }) {
     val scope = rememberCoroutineScope()
-    val uiState = viewModel.uiState.collectAsState().value
+
     LaunchedEffect(Unit) {
         viewModel.initData()
     }
 
-
     val toolbarHeight = 48.dp
-    val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
+    val toolbarHeightPx = 48.dp.dpToPx()
     val toolbarOffsetHeightPx = remember { mutableFloatStateOf(0f) }
-    val nestedScrollConnection = remember {
+
+    val nestedScrollConnection = derivedStateOf {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
+                XLogger.d("delta:${delta}")
                 val newOffset = toolbarOffsetHeightPx.floatValue + delta
                 toolbarOffsetHeightPx.floatValue = newOffset.coerceIn(-toolbarHeightPx, 0f)
                 return Offset.Zero
@@ -59,7 +72,6 @@ fun MainCotent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() })
     }
 
     val state = rememberBottomSheetScaffoldState()
-
     BottomSheetScaffold(
         scaffoldState = state,
         sheetBackgroundColor = Color.Blue,
@@ -75,115 +87,119 @@ fun MainCotent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() })
                 Text("sheetContent")
             }
         }) {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .nestedScroll(nestedScrollConnection)
-        ) {
-            LazyVerticalGrid(
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-                columns = GridCells.Fixed(2),
-                contentPadding = PaddingValues(horizontal = 2.dp),
-            ) {
-                uiState.forEachIndexed { index, homeListEntity ->
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .padding(
-                                    vertical = 4.dp,
-                                    horizontal = 4.dp,
-                                )
-                                .fillMaxWidth()
-                                .aspectRatio(4 / 6f)
-                                .clickable {
-                                    viewModel.changeSelectedStatus(index)
-                                }
-                                .background(
-                                    color = Color.LightGray,
-                                    shape = RoundedCornerShape(6.dp)
-                                )
-                                .padding(vertical = 16.dp, horizontal = 12.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .aspectRatio(1f)
-                            ) {
-                                Image(
-                                    painterResource(Res.drawable.compose_multiplatform),
-                                    null,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                )
 
-                                Image(
-                                    painterResource(if (homeListEntity.selected) Res.drawable.ic_selected else Res.drawable.ic_select_default),
-                                    null,
-                                    modifier = Modifier
-                                        .padding(start = 2.dp, top = 2.dp)
-                                        .align(Alignment.TopStart)
-                                        .size(16.dp)
+        val tabList = remember {
+            mutableStateListOf<HomeTabsEntity>()
+        }
+
+        LaunchedEffect(UInt) {
+            val list = mutableListOf<HomeTabsEntity>()
+            (0..9).forEachIndexed { _, i ->
+                list.add(HomeTabsEntity("TITLE${i}"))
+            }
+            tabList.addAll(list)
+        }
+
+        Column(
+            modifier = Modifier
+                .nestedScroll(nestedScrollConnection.value)
+        ) {
+            ScrollableTabRow(
+                modifier = Modifier.fillMaxWidth()
+                    .height(toolbarHeight - abs(toolbarOffsetHeightPx.floatValue.roundToInt()).pxToDp())
+                ,
+                selectedTabIndex = 0,
+                backgroundColor = Color.White,
+                contentColor = Color.Black,
+                indicator = {
+
+                },
+                divider = {
+                },
+                tabs = {
+                    tabList.forEachIndexed { _, homeTabsEntity ->
+                        Tab(
+                            selected = homeTabsEntity.selected,
+                            onClick = {
+                            }, content = {
+                                Text(
+                                    text = homeTabsEntity.title,
+                                    fontWeight = FontWeight.Medium,
                                 )
                             }
-
-                            Text(
-                                text = homeListEntity.title,
-                                color = Color(0xFF333333),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
-                            )
-                            Text(
-                                text = homeListEntity.content,
-                                color = Color.Gray,
-                                fontSize = 12.sp,
-                                modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
-                            )
-                        }
+                        )
                     }
                 }
-            }
-            TopAppBar(
-                modifier = Modifier
-                    .height(toolbarHeight)
-                    .offset { IntOffset(x = 0, y = toolbarOffsetHeightPx.floatValue.roundToInt()) },
-                title = {
-                    Row(horizontalArrangement = Arrangement.SpaceBetween) {
+            )
+            ListView(viewModel)
+        }
+    }
+}
 
-                        Text(
-                            text = "I AM HEADER, OFFSET:${toolbarOffsetHeightPx.floatValue}",
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 16.sp,
-                            color = Color.Magenta,
-                            fontFamily = youYuanFamily()
+@Composable
+fun ListView(viewModel: HomeListViewModel) {
+    val uiState = viewModel.uiState.collectAsState().value
+    LazyVerticalGrid(
+        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+        columns = GridCells.Fixed(2),
+        contentPadding = PaddingValues(horizontal = 2.dp),
+    ) {
+        uiState.forEachIndexed { index, homeListEntity ->
+            item {
+                Column(
+                    modifier = Modifier
+                        .padding(
+                            vertical = 4.dp,
+                            horizontal = 4.dp,
+                        )
+                        .fillMaxWidth()
+                        .aspectRatio(4 / 6f)
+                        .clickable {
+                            viewModel.changeSelectedStatus(index)
+                        }
+                        .background(
+                            color = Color.LightGray,
+                            shape = RoundedCornerShape(6.dp)
+                        )
+                        .padding(vertical = 16.dp, horizontal = 12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                    ) {
+                        Image(
+                            painterResource(Res.drawable.compose_multiplatform),
+                            null,
+                            modifier = Modifier
+                                .fillMaxSize()
                         )
 
-                      Row {
-                          TextButton(
-                              colors = ButtonDefaults.textButtonColors(backgroundColor = Color.Blue),
-                              onClick = {
-                              scope.launch {
-                                  state.bottomSheetState.expand()
-                              }
-                          }) {
-                              Text("bottomSheet", color = Color.White)
-                          }
-
-                          TextButton(
-                              colors = ButtonDefaults.textButtonColors(backgroundColor = Color.Blue),
-                              onClick = {
-                              scope.launch {
-                                  state.snackbarHostState.showSnackbar("this is a snackbar message", duration = SnackbarDuration.Short)
-                              }
-                          }) {
-                              Text("SnackBar", color = Color.White)
-                          }
-
-                      }
+                        Image(
+                            painterResource(if (homeListEntity.selected) Res.drawable.ic_selected else Res.drawable.ic_select_default),
+                            null,
+                            modifier = Modifier
+                                .padding(start = 2.dp, top = 2.dp)
+                                .align(Alignment.TopStart)
+                                .size(16.dp)
+                        )
                     }
-                },
-                backgroundColor = Color.White
-            )
+
+                    Text(
+                        text = homeListEntity.title,
+                        color = Color(0xFF333333),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.fillMaxWidth().padding(top = 10.dp)
+                    )
+                    Text(
+                        text = homeListEntity.content,
+                        color = Color.Gray,
+                        fontSize = 12.sp,
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
+                    )
+                }
+            }
         }
     }
 }
