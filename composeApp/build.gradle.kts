@@ -6,6 +6,10 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+
+//    kotlin("jvm") version "2.0.0"
+//    id("org.jetbrains.kotlin.jvm") version "2.0.0"
+
 }
 
 compose.resources {
@@ -52,6 +56,8 @@ kotlin {
             implementation("androidx.camera:camera-mlkit-vision:${cameraxVersion}")
             // If you want to additionally use the CameraX Extensions library
             implementation("androidx.camera:camera-extensions:${cameraxVersion}")
+            implementation(libs.ktor.client.okhttp)
+            implementation(libs.kotlinx.coroutines.android)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -61,6 +67,12 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            implementation(libs.ktor.client.core)
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.koin)
+            implementation(libs.serialization)
+            implementation(libs.kamel)
+
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
             implementation("org.jetbrains.androidx.navigation:navigation-compose:2.7.0-alpha07")
             implementation("io.github.oshai:kotlin-logging:7.0.0")
@@ -68,11 +80,13 @@ kotlin {
             implementation("dev.icerock.moko:permissions:0.18.0")
             // compose multiplatform
             implementation("dev.icerock.moko:permissions-compose:0.18.0") // permissions api + compose extensions
-
             implementation("dev.icerock.moko:permissions-test:0.18.0")
             //bluetooth
             //implementation("com.juul.kable:kable-core:0.32.0")
+        }
 
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
