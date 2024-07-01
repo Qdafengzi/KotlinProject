@@ -10,9 +10,11 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -41,15 +43,12 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 
-enum class ScrollDirection {
-    UP,
-    DOWN,
-}
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainContent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() }) {
     val scope = rememberCoroutineScope()
+    val homeTabList = viewModel.homeTabList.collectAsState().value
+
 
     LaunchedEffect(Unit) {
         viewModel.initData()
@@ -88,16 +87,8 @@ fun MainContent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() }
             }
         }) {
 
-        val tabList = remember {
-            mutableStateListOf<HomeTabsEntity>()
-        }
-
         LaunchedEffect(UInt) {
-            val list = mutableListOf<HomeTabsEntity>()
-            (0..9).forEachIndexed { _, i ->
-                list.add(HomeTabsEntity("TITLE${i}"))
-            }
-            tabList.addAll(list)
+            viewModel.initHomeTabList()
         }
 
         Column(
@@ -111,21 +102,45 @@ fun MainContent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() }
                 selectedTabIndex = 0,
                 backgroundColor = Color.White,
                 contentColor = Color.Black,
+                edgePadding = 0.dp,
                 indicator = {
 
+
+                    //Box(modifier = Modifier.height(2.dp).background(color = Color.Blue, shape = RoundedCornerShape(1.dp)))
                 },
                 divider = {
+//                    HorizontalDivider()
                 },
                 tabs = {
-                    tabList.forEachIndexed { _, homeTabsEntity ->
+                    homeTabList.forEachIndexed { index, homeTabsEntity ->
                         Tab(
+                            modifier = Modifier.fillMaxWidth(),
+                            unselectedContentColor = Color.White,
+                            selectedContentColor = Color.Black,
                             selected = homeTabsEntity.selected,
                             onClick = {
+                                viewModel.updateTabClick(index)
                             }, content = {
-                                Text(
-                                    text = homeTabsEntity.title,
-                                    fontWeight = FontWeight.Medium,
-                                )
+                                Box(
+                                    modifier = Modifier
+                                        .clip(
+                                            RoundedCornerShape(
+                                                topEndPercent = 50,
+                                                topStartPercent = 50,
+                                                bottomEndPercent = 50,
+                                                bottomStartPercent = 50
+                                            )
+                                        )
+                                        .background(color = if (homeTabsEntity.selected) Color.Blue.copy(alpha = 0.5f) else Color.Gray)
+                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+
+                                    contentAlignment = Alignment.Center,
+                                ){
+                                    Text(
+                                        text = homeTabsEntity.title,
+                                        fontWeight = if (homeTabsEntity.selected) FontWeight.Medium else FontWeight.Normal,
+                                        )
+                                }
                             }
                         )
                     }
