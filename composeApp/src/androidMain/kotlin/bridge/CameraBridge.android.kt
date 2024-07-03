@@ -51,10 +51,7 @@ actual fun CameraView() {
             ).build()
 
             val preview = Preview.Builder()
-//                .setTargetResolution(screenSize)
                 .setResolutionSelector(resolutionStrategy)
-                .setPreviewStabilizationEnabled(true)
-//                .setCustomOrderedResolutions(listOf(android.util.Size(1080,1080)))
                 .build()
             preview.surfaceProvider = previewView.surfaceProvider
             val cameraSelector =

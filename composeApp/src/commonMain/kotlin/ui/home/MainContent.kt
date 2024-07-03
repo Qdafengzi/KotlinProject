@@ -45,10 +45,8 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainContent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() }) {
-    val scope = rememberCoroutineScope()
-    val homeTabList = viewModel.homeTabList.collectAsState().value
-
+fun MainContent(viewModel: HomeListViewModel) {
+    val homeTabList = viewModel.uiState.collectAsState().value.homeTabs
 
     LaunchedEffect(Unit) {
         viewModel.initData()
@@ -104,8 +102,6 @@ fun MainContent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() }
                 contentColor = Color.Black,
                 edgePadding = 0.dp,
                 indicator = {
-
-
                     //Box(modifier = Modifier.height(2.dp).background(color = Color.Blue, shape = RoundedCornerShape(1.dp)))
                 },
                 divider = {
@@ -153,13 +149,13 @@ fun MainContent(viewModel: HomeListViewModel = viewModel { HomeListViewModel() }
 
 @Composable
 fun ListView(viewModel: HomeListViewModel) {
-    val uiState = viewModel.uiState.collectAsState().value
+    val homeList = viewModel.uiState.collectAsState().value.homeList
     LazyVerticalGrid(
         modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(horizontal = 2.dp),
     ) {
-        uiState.forEachIndexed { index, homeListEntity ->
+        homeList.forEachIndexed { index, homeListEntity ->
             item {
                 Column(
                     modifier = Modifier

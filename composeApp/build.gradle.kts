@@ -85,6 +85,8 @@ kotlin {
             implementation("dev.icerock.moko:permissions-test:0.18.0")
             //bluetooth
             //implementation("com.juul.kable:kable-core:0.32.0")
+
+            implementation("io.github.dokar3:sonner:0.3.8")
         }
 
         iosMain.dependencies {

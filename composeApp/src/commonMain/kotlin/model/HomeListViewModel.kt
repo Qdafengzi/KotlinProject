@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import entity.HomeListEntity
 import entity.HomeTabsEntity
+import entity.HomeUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,14 +14,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 
+
+
+
 class HomeListViewModel : ViewModel() {
 
-    private val _uiState: MutableStateFlow<List<HomeListEntity>> = MutableStateFlow(emptyList())
-    val uiState: StateFlow<List<HomeListEntity>> = _uiState.asStateFlow()
-
-    private val _homeTabList: MutableStateFlow<List<HomeTabsEntity>> = MutableStateFlow(emptyList())
-    val homeTabList: StateFlow<List<HomeTabsEntity>> = _homeTabList.asStateFlow()
-
+    private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
+    val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
     fun initData() {
         viewModelScope.launch {
@@ -34,19 +34,20 @@ class HomeListViewModel : ViewModel() {
                 )
             }
             _uiState.update {
-                homeList
+                it.copy(homeList = homeList)
             }
         }
     }
 
     fun changeSelectedStatus(index: Int) {
-        val currentList = _uiState.value.toMutableList()
+        val currentList = _uiState.value.homeList.toMutableList()
         if (index in currentList.indices) {
             val updatedItem = currentList[index].copy(selected = !currentList[index].selected)
             currentList[index] = updatedItem
-            _uiState.update {
-                currentList
-            }
+
+        }
+        _uiState.update {
+            it.copy(homeList = currentList)
         }
     }
 
@@ -57,15 +58,15 @@ class HomeListViewModel : ViewModel() {
                 list.add(HomeTabsEntity("TITLE${i}"))
             }
             list[0] = list[0].copy(selected = true)
-            _homeTabList.update {
-                list
+            _uiState.update {
+                it.copy(homeTabs = list)
             }
         }
     }
 
     fun updateTabClick(index: Int) {
-        val newItem = _homeTabList.value[index].copy(selected = !_homeTabList.value[index].selected)
-        val newList = _homeTabList.value.toMutableList()
+        val newItem = _uiState.value.homeTabs[index].copy(selected = !_uiState.value.homeTabs[index].selected)
+        val newList = _uiState.value.homeTabs.toMutableList()
         newList.forEachIndexed { i, homeTabsEntity ->
             if (i == index) {
                 newList[i] = homeTabsEntity.copy(selected = !homeTabsEntity.selected)
@@ -74,8 +75,8 @@ class HomeListViewModel : ViewModel() {
             }
         }
         newList[index] = newItem
-        _homeTabList.update {
-            newList
+        _uiState.update {
+            it.copy(homeTabs = newList)
         }
     }
 }

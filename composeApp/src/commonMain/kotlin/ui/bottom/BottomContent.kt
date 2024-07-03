@@ -1,5 +1,6 @@
 package ui.bottom
 
+import HomeListViewModel
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
@@ -88,7 +89,7 @@ fun BottomContent(navController: NavHostController) {
 
 
 @Composable
-fun NavHostContainer(navController: NavHostController, modifier: Modifier = Modifier) {
+fun NavHostContainer(navController: NavHostController,homeViewModel: HomeListViewModel, modifier: Modifier = Modifier) {
     //val animationSpec = tween<IntOffset>(70)
     NavHost(
         navController = navController,
@@ -107,7 +108,7 @@ fun NavHostContainer(navController: NavHostController, modifier: Modifier = Modi
             popExitTransition = null,
 
             ) {
-            MainContent()
+            MainContent(homeViewModel)
         }
         composable(
             route = BottomNavItem.Camera.route,
