@@ -10,14 +10,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.ModalDrawer
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.rememberDrawerState
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
@@ -39,6 +45,11 @@ import com.dokar.sonner.Toaster
 import com.dokar.sonner.rememberToasterState
 import io.kamel.image.KamelImage
 import io.kamel.image.asyncPainterResource
+import org.example.kmpapp.Res
+import org.example.kmpapp.ic_collection
+import org.example.kmpapp.ic_download
+import org.example.kmpapp.ic_share
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import ui.bottom.BottomContent
 import ui.bottom.NavHostContainer
@@ -52,8 +63,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @Preview
 fun App(homeViewModel: HomeListViewModel = androidx.lifecycle.viewmodel.compose.viewModel { HomeListViewModel() }) {
     MultiplatformTheme {
-        val homeList = homeViewModel.uiState.collectAsState().value.homeList
-
+        val uiState = homeViewModel.uiState.collectAsState().value
         PlatformColors(Color.White, Color.White)
         val navController = rememberNavController()
         val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -65,9 +75,17 @@ fun App(homeViewModel: HomeListViewModel = androidx.lifecycle.viewmodel.compose.
         val sheetState = rememberBottomSheetScaffoldState(bottomSheetState = bottomSheetState)
 
 
-        LaunchedEffect(homeList) {
+        LaunchedEffect(uiState.homeDataList) {
             XLogger.d("homeList change")
-            val count = homeList.count {
+            if (uiState.homeDataList.isEmpty()){
+                return@LaunchedEffect
+            }
+
+            if (uiState.homeDataList.size < uiState.currentPage) {
+                return@LaunchedEffect
+            }
+
+            val count = uiState.homeDataList[uiState.currentPage].list.count {
                 it.selected
             }
             XLogger.d("------>${count}")
@@ -77,8 +95,6 @@ fun App(homeViewModel: HomeListViewModel = androidx.lifecycle.viewmodel.compose.
                 bottomSheetState.hide()
             }
         }
-
-
 
         ModalDrawer(
             modifier = Modifier.fillMaxSize().systemBarsPadding(),
@@ -132,7 +148,6 @@ fun App(homeViewModel: HomeListViewModel = androidx.lifecycle.viewmodel.compose.
                     }
                 ) { innerPadding ->
                     NavHostContainer(navController, homeViewModel, Modifier.padding(innerPadding))
-
                 }
             }
         }
@@ -150,53 +165,64 @@ private fun BottomSheet() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .clickable {
                     toaster.show("分享成功", type = ToastType.Info, duration = 1000.milliseconds)
                 }
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(vertical = 10.dp, horizontal = 10.dp)
-            ,
-            contentAlignment = Alignment.Center
+                .padding(vertical = 10.dp, horizontal = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Icon(
+                painterResource(Res.drawable.ic_share),
+                contentDescription = null,
+                modifier = Modifier.size(28.dp)
+            )
             Text(
                 "分享",
             )
         }
 
-        Box(
+        Column(
             modifier = Modifier
                 .clickable {
                     toaster.show("下载成功", type = ToastType.Info, duration = 1000.milliseconds)
                 }
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(vertical = 10.dp, horizontal = 10.dp)
-            ,
-            contentAlignment = Alignment.Center
+                .padding(vertical = 10.dp, horizontal = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Icon(
+                painterResource(Res.drawable.ic_download),
+                contentDescription = null,
+                modifier = Modifier.size(28.dp)
+            )
             Text(
                 "下载",
             )
         }
 
-        Box(
+        Column(
             modifier = Modifier
                 .clickable {
-                    toaster.show("收藏成功", type = ToastType.Warning,duration = 1000.milliseconds)
+                    toaster.show("收藏成功", type = ToastType.Warning, duration = 1000.milliseconds)
                 }
                 .fillMaxWidth()
                 .weight(1f)
-                .padding(vertical = 10.dp, horizontal = 10.dp)
-            ,
-            contentAlignment = Alignment.Center
+                .padding(vertical = 10.dp, horizontal = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Icon(
+                painterResource(Res.drawable.ic_collection),
+                contentDescription = null,
+                modifier = Modifier.size(28.dp)
+            )
             Text(
                 "收藏",
             )
         }
     }
-
 }

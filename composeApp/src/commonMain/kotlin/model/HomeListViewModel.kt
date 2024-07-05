@@ -1,12 +1,9 @@
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.ui.input.key.Key.Companion.P
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import entity.HomeListEntity
+import entity.ListEntity
 import entity.HomeTabsEntity
 import entity.HomeUiState
+import entity.PagerData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,44 +19,52 @@ class HomeListViewModel : ViewModel() {
     private val _uiState: MutableStateFlow<HomeUiState> = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
-    fun initData() {
+
+    fun getHomePageData(index:Int){
         viewModelScope.launch {
-            val homeList = mutableListOf<HomeListEntity>()
-            (0..500).forEach {
-                homeList.add(
-                    HomeListEntity(
-                        title = "TITLE $it",
+            val list = mutableListOf<ListEntity>()
+            (0..20).forEach {
+                list.add(
+                    ListEntity(
+                        title = "PAGE $index TITLE $it",
                         content = "THIS IS A COMPOSE MULTIPLATFORM UI $it"
                     )
                 )
             }
+            val pagerData = PagerData(index = index, list)
+            val homeDataList = _uiState.value.homeDataList.toMutableList()
+            homeDataList.add(index, pagerData)
             _uiState.update {
-                it.copy(homeList = homeList)
+                it.copy(homeDataList = homeDataList)
             }
         }
     }
 
-    fun changeSelectedStatus(index: Int) {
-        val currentList = _uiState.value.homeList.toMutableList()
-        if (index in currentList.indices) {
-            val updatedItem = currentList[index].copy(selected = !currentList[index].selected)
-            currentList[index] = updatedItem
+    fun changeSelectedStatus(pageIndex:Int,index: Int) {
+        val homeDataList = _uiState.value.homeDataList.toMutableList()
+        val pagerData = homeDataList[pageIndex].list.toMutableList()
 
+        if (index in pagerData.indices) {
+            val updatedItem = pagerData[index].copy(selected = !pagerData[index].selected)
+            pagerData[index] = updatedItem
         }
+        homeDataList[pageIndex] = PagerData(index = pageIndex, pagerData)
         _uiState.update {
-            it.copy(homeList = currentList)
+            it.copy(homeDataList = homeDataList)
         }
     }
 
     fun initHomeTabList() {
         viewModelScope.launch {
             val list = mutableListOf<HomeTabsEntity>()
-            (0..9).forEachIndexed { _, i ->
+            val homeData = mutableListOf<PagerData>()
+            (0..9).forEachIndexed { index, i ->
                 list.add(HomeTabsEntity("TITLE${i}"))
+                homeData.add(PagerData(index = index, listOf()))
             }
             list[0] = list[0].copy(selected = true)
             _uiState.update {
-                it.copy(homeTabs = list)
+                it.copy(homeTabs = list, homeDataList = homeData)
             }
         }
     }

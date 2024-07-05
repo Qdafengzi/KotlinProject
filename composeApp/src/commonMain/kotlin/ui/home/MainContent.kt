@@ -1,6 +1,7 @@
 package ui.home
 
 import HomeListViewModel
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,6 +9,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material3.HorizontalDivider
@@ -17,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key.Companion.P
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -43,14 +47,13 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun MainContent(viewModel: HomeListViewModel) {
-    val homeTabList = viewModel.uiState.collectAsState().value.homeTabs
+    val uiState = viewModel.uiState.collectAsState().value
+    val homeTabList = uiState.homeTabs
 
-    LaunchedEffect(Unit) {
-        viewModel.initData()
-    }
+    val scope = rememberCoroutineScope()
 
     val toolbarHeight = 48.dp
     val toolbarHeightPx = 48.dp.dpToPx()
@@ -69,6 +72,16 @@ fun MainContent(viewModel: HomeListViewModel) {
     }
 
     val state = rememberBottomSheetScaffoldState()
+    val pageState = rememberPagerState(
+        pageCount = {
+            homeTabList.size
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.initHomeTabList()
+    }
+
     BottomSheetScaffold(
         scaffoldState = state,
         sheetBackgroundColor = Color.Blue,
@@ -85,10 +98,6 @@ fun MainContent(viewModel: HomeListViewModel) {
             }
         }) {
 
-        LaunchedEffect(UInt) {
-            viewModel.initHomeTabList()
-        }
-
         Column(
             modifier = Modifier
                 .nestedScroll(nestedScrollConnection.value)
@@ -97,7 +106,7 @@ fun MainContent(viewModel: HomeListViewModel) {
                 modifier = Modifier.fillMaxWidth()
                     .height(toolbarHeight - abs(toolbarOffsetHeightPx.floatValue.roundToInt()).pxToDp())
                 ,
-                selectedTabIndex = 0,
+                selectedTabIndex = uiState.currentPage,
                 backgroundColor = Color.White,
                 contentColor = Color.Black,
                 edgePadding = 0.dp,
@@ -116,6 +125,9 @@ fun MainContent(viewModel: HomeListViewModel) {
                             selected = homeTabsEntity.selected,
                             onClick = {
                                 viewModel.updateTabClick(index)
+                                scope.launch {
+                                    pageState.scrollToPage(index)
+                                }
                             }, content = {
                                 Box(
                                     modifier = Modifier
@@ -142,20 +154,40 @@ fun MainContent(viewModel: HomeListViewModel) {
                     }
                 }
             )
-            ListView(viewModel)
+
+            XLogger.d("刷新======》")
+            HorizontalPager(
+                state = pageState,
+                modifier = Modifier.fillMaxSize(),
+                userScrollEnabled = false,
+                pageSize = PageSize.Fill,
+            ) {
+                viewModel.updateTabClick(it)
+                ListView(viewModel,it)
+            }
         }
     }
 }
 
 @Composable
-fun ListView(viewModel: HomeListViewModel) {
-    val homeList = viewModel.uiState.collectAsState().value.homeList
+fun ListView(viewModel: HomeListViewModel, pageIndex: Int) {
+    val homeDataList = viewModel.uiState.collectAsState().value.homeDataList
+    if (homeDataList.isEmpty()) return
+    if (homeDataList.size <= pageIndex) return
+    val pageList = homeDataList[pageIndex].list
+    LaunchedEffect(pageIndex) {
+        if (pageList.isEmpty()) {
+            XLogger.d("开始请求${pageIndex}}")
+            viewModel.getHomePageData(pageIndex)
+        }
+    }
+
     LazyVerticalGrid(
         modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(horizontal = 2.dp),
     ) {
-        homeList.forEachIndexed { index, homeListEntity ->
+        pageList.forEachIndexed { index, homeListEntity ->
             item {
                 Column(
                     modifier = Modifier
@@ -166,7 +198,7 @@ fun ListView(viewModel: HomeListViewModel) {
                         .fillMaxWidth()
                         .aspectRatio(4 / 6f)
                         .clickable {
-                            viewModel.changeSelectedStatus(index)
+                            viewModel.changeSelectedStatus(pageIndex,index)
                         }
                         .background(
                             color = Color.LightGray,
