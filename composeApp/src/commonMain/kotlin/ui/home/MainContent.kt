@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -53,9 +54,8 @@ fun MainContent(viewModel: HomeListViewModel) {
     val uiState = viewModel.uiState.collectAsState().value
     val homeTabList = uiState.homeTabs
 
-    val scope = rememberCoroutineScope()
+    XLogger.d("刷新======》MainContent")
 
-    val toolbarHeight = 48.dp
     val toolbarHeightPx = 48.dp.dpToPx()
     val toolbarOffsetHeightPx = remember { mutableFloatStateOf(0f) }
 
@@ -102,71 +102,81 @@ fun MainContent(viewModel: HomeListViewModel) {
             modifier = Modifier
                 .nestedScroll(nestedScrollConnection.value)
         ) {
-            ScrollableTabRow(
-                modifier = Modifier.fillMaxWidth()
-                    .height(toolbarHeight - abs(toolbarOffsetHeightPx.floatValue.roundToInt()).pxToDp())
-                ,
-                selectedTabIndex = uiState.currentPage,
-                backgroundColor = Color.White,
-                contentColor = Color.Black,
-                edgePadding = 0.dp,
-                indicator = {
-                    //Box(modifier = Modifier.height(2.dp).background(color = Color.Blue, shape = RoundedCornerShape(1.dp)))
-                },
-                divider = {
-//                    HorizontalDivider()
-                },
-                tabs = {
-                    homeTabList.forEachIndexed { index, homeTabsEntity ->
-                        Tab(
-                            modifier = Modifier.fillMaxWidth(),
-                            unselectedContentColor = Color.White,
-                            selectedContentColor = Color.Black,
-                            selected = homeTabsEntity.selected,
-                            onClick = {
-                                viewModel.updateTabClick(index)
-                                scope.launch {
-                                    pageState.scrollToPage(index)
-                                }
-                            }, content = {
-                                Box(
-                                    modifier = Modifier
-                                        .clip(
-                                            RoundedCornerShape(
-                                                topEndPercent = 50,
-                                                topStartPercent = 50,
-                                                bottomEndPercent = 50,
-                                                bottomStartPercent = 50
-                                            )
-                                        )
-                                        .background(color = if (homeTabsEntity.selected) Color.Blue.copy(alpha = 0.5f) else Color.Gray)
-                                        .padding(horizontal = 16.dp, vertical = 12.dp),
+            HomePageTab(viewModel,pageState,toolbarOffsetHeightPx)
 
-                                    contentAlignment = Alignment.Center,
-                                ){
-                                    Text(
-                                        text = homeTabsEntity.title,
-                                        fontWeight = if (homeTabsEntity.selected) FontWeight.Medium else FontWeight.Normal,
-                                        )
-                                }
-                            }
-                        )
-                    }
-                }
-            )
-
-            XLogger.d("刷新======》")
             HorizontalPager(
                 state = pageState,
                 modifier = Modifier.fillMaxSize(),
                 userScrollEnabled = false,
                 pageSize = PageSize.Fill,
             ) {
-                viewModel.updateTabClick(it)
                 ListView(viewModel,it)
             }
         }
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun HomePageTab(viewModel: HomeListViewModel,pagerState: PagerState,toolbarOffsetHeightPx:MutableFloatState) {
+    XLogger.d("刷新======》HomePageTab")
+    val uiState = viewModel.uiState.collectAsState().value
+    val scope = rememberCoroutineScope()
+    val homeTabList = uiState.homeTabs
+    val toolbarHeight = 48.dp
+    ScrollableTabRow(
+        modifier = Modifier.fillMaxWidth()
+            .height(toolbarHeight - abs(toolbarOffsetHeightPx.floatValue.roundToInt()).pxToDp())
+        ,
+        selectedTabIndex = uiState.currentPage,
+        backgroundColor = Color.White,
+        contentColor = Color.Black,
+        edgePadding = 0.dp,
+        indicator = {
+            //Box(modifier = Modifier.height(2.dp).background(color = Color.Blue, shape = RoundedCornerShape(1.dp)))
+        },
+        divider = {
+//                    HorizontalDivider()
+        },
+        tabs = {
+            homeTabList.forEachIndexed { index, homeTabsEntity ->
+                Tab(
+                    modifier = Modifier.fillMaxWidth(),
+                    unselectedContentColor = Color.White,
+                    selectedContentColor = Color.Black,
+                    selected = homeTabsEntity.selected,
+                    onClick = {
+                        viewModel.updateTabClick(index)
+                        scope.launch {
+                            pagerState.scrollToPage(index)
+                        }
+                    }, content = {
+                        Box(
+                            modifier = Modifier
+                                .clip(
+                                    RoundedCornerShape(
+                                        topEndPercent = 50,
+                                        topStartPercent = 50,
+                                        bottomEndPercent = 50,
+                                        bottomStartPercent = 50
+                                    )
+                                )
+                                .background(color = if (homeTabsEntity.selected) Color.Blue.copy(alpha = 0.5f) else Color.Gray)
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+
+                            contentAlignment = Alignment.Center,
+                        ){
+                            Text(
+                                text = homeTabsEntity.title,
+                                fontWeight = if (homeTabsEntity.selected) FontWeight.Medium else FontWeight.Normal,
+                            )
+                        }
+                    }
+                )
+            }
+        }
+    )
+
 }
 
 @Composable
