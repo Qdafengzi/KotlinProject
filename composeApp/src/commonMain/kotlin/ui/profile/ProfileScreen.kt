@@ -49,6 +49,10 @@ fun ProfileScreen() {
     Column(modifier = Modifier.fillMaxSize().background(color = Color.White)) {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             item {
+
+            }
+
+            item {
                 Box(
                     modifier = Modifier.fillMaxWidth()
                         .aspectRatio(1f)

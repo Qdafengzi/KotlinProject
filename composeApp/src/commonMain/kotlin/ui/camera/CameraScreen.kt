@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import bridge.CameraView
+import bridge.PlayerBridge
 
 
 @Composable
@@ -45,6 +46,8 @@ fun CameraScreen() {
                 ),
 
             )
+
+            PlayerBridge("https://media.gemlightbox.com/videos/gallery/174626/2024-07-10-14-30-08-190_51804c2e.mp4?tr=f-mp4,h-1080")
         }
 
     }
